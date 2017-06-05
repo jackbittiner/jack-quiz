@@ -8,4 +8,6 @@ function Question(props) {
 
 Question.propTypes = {
   content: React.PropTypes.string.isRequired
-}
+};
+
+export default Question;
