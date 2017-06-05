@@ -2,7 +2,9 @@ import React, { Component } from 'react';
 import logo from './logo.svg';
 import './App.css';
 import Question from './components/Question';
-import quizQuestions from './api/quizQuestions';
+import quizQuestions from './questions/quizQuestions';
+import Quiz from './components/Quiz';
+import update from 'react-addons-update';
 
 class App extends Component {
 
@@ -22,6 +24,7 @@ class App extends Component {
    },
    result: ''
   };
+  this.handleAnswerSelected = this.handleAnswerSelected.bind(this);
 }
 
 componentWillMount() {
@@ -45,14 +48,52 @@ componentWillMount() {
     return array;
   };
 
+  setUserAnswer(answer) {
+    const updatedAnswersCount = update(this.state.answersCount, {
+      [answer]: {$apply: (currentValue) => currentValue + 1}
+    });
+    this.setState({
+      answersCount: updatedAnswersCount,
+      answer: answer
+    });
+  }
+
+  setNextQuestion() {
+   const counter = this.state.counter + 1;
+   const questionId = this.state.questionId + 1;
+   this.setState({
+     counter: counter,
+     questionId: questionId,
+     question: quizQuestions[counter].question,
+     answerOptions: quizQuestions[counter].answers,
+     answer: ''
+   });
+ }
+
+  handleAnswerSelected(event) {
+   this.setUserAnswer(event.currentTarget.value);
+   if (this.state.questionId < quizQuestions.length) {
+       setTimeout(() => this.setNextQuestion(), 300);
+     } else {
+       // do nothing for now
+     }
+ }
+
   render() {
     return (
       <div className="App">
         <div className="App-header">
           <img src={logo} className="App-logo" alt="logo" />
-          <h2>Jack Quiz</h2>
+          <h2>The 'Should you pick Jack?' Quiz</h2>
         </div>
-        <Question content="Blah blah blah?" />
+        <Quiz
+          answer={this.state.answer}
+          answerOptions={this.state.answerOptions}
+          questionId={this.state.questionId}
+          question={this.state.question}
+          questionTotal={quizQuestions.length}
+          onAnswerSelected={this.handleAnswerSelected}
+        />
       </div>
     );
   }
